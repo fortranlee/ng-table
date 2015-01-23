@@ -101,13 +101,16 @@ app.directive('ngTable', ['$compile', '$q', '$parse',
                     scope.$loading = false;
                     scope.$columns = columns;
                     scope.$filterRow = {};
+                    var paramsModelExpr = $parse(attrs.ngTable);
 
-                    scope.$watch(attrs.ngTable, (function(params) {
+                    scope.$watch(function() {
+                        return scope.getParamsWatchState(paramsModelExpr(scope));
+                    }, (function(params) {
                         if (angular.isUndefined(params)) {
                             return;
                         }
-                        scope.paramsModel = $parse(attrs.ngTable);
-                        scope.params = params;
+                        scope.paramsModel = paramsModelExpr;
+                        scope.params = paramsModelExpr(scope);
                     }), true);
                     scope.parse = function(text) {
                         return angular.isDefined(text) ? text(scope) : '';

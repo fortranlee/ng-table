@@ -22,6 +22,7 @@ var ngTableController = ['$scope', 'NgTableParams', '$timeout', function($scope,
         $scope.params.isNullInstance = true;
     }
     $scope.params.settings().$scope = $scope;
+    $scope.getParamsWatchState = getParamsWatchState;
 
     var delayFilter = (function() {
         var timer = 0;
@@ -31,11 +32,30 @@ var ngTableController = ['$scope', 'NgTableParams', '$timeout', function($scope,
         };
     })();
 
+    function getParamsWatchState(params) {
+        if (!params) {
+            return params;
+        }
+
+        var allKeys = Object.keys(params);
+        var observedKeys = allKeys.filter(function (key) {
+            return key !== "data";
+        });
+        var state = {};
+        for (var i = 0; i < observedKeys.length; i++) {
+            var propName = observedKeys[i];
+            state[propName] = params[propName];
+        }
+        return state;
+    }
+
     function resetPage() {
         $scope.params.$params.page = 1;
     }
 
-    $scope.$watch('params.$params', function(newParams, oldParams) {
+    $scope.$watch(function() {
+        return getParamsWatchState($scope.params.$params)
+    }, function(newParams, oldParams) {
 
         if (newParams === oldParams) {
             return;
